@@ -4,20 +4,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_height="120dp"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:id="@+id/recyclerView_cart"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="5dp">
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout_cart">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_height="120dp"
+            android:layout_width="match_parent"
+            android:layout_weight="0.5"
+            android:id="@+id/recyclerView_cart"
+            android:layout_margin="5dp">
+        </android.support.v7.widget.RecyclerView>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="120dp"
+            android:layout_weight="0.1"
+            android:text=""
+            android:layout_margin="5dp"
+            android:textColor="#ffffff"
+            android:background="#004D40">
+        </Button>
+
+    </LinearLayout>
 
     <ViewSwitcher
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/viewSwitcher"
-        android:layout_below="@+id/recyclerView_cart"
+        android:layout_below="@+id/linearLayout_cart"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" >
 
