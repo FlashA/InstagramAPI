@@ -1,14 +1,26 @@
 package com.flash.inst;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.flash.inst.API.InstagramAPI;
+import com.flash.inst.InstagramUtils.Constant;
+import com.flash.inst.InstagramUtils.Instagram;
+import com.flash.inst.InstagramUtils.InstagramSession;
+import com.flash.inst.Models.UserPicture;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView_cart;
     private RecyclerView recyclerView_searchResult;
 
+    private InstagramSession mInstagramSession;
+    private Instagram mInstagram;
+
     //кнопка для передач чего либо в след активити
 
     private SpacesItemDecoration itemDecoration;
@@ -27,22 +42,57 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        mInstagram  = new Instagram(this);
+        mInstagramSession	= mInstagram.getSession();
 
-        itemDecoration = new SpacesItemDecoration(spaceBetweenCards);   //используется для создания отступа между элементами в RecyclerView
-        recyclerView_cart=(RecyclerView)findViewById(R.id.recyclerView_cart);
+        mInstagramSession = new InstagramSession(getApplicationContext());
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView_cart.addItemDecoration(itemDecoration);
-        recyclerView_cart.setLayoutManager(linearLayoutManager);
+        if (mInstagramSession.isActive()) {
+            setContentView(R.layout.activity_main);
 
-        recyclerView_searchResult=(RecyclerView)findViewById(R.id.recyclerView_searchResult);
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, 1);
-        recyclerView_searchResult.addItemDecoration(itemDecoration);
-        recyclerView_searchResult.setLayoutManager(staggeredGridLayoutManager);
+            itemDecoration = new SpacesItemDecoration(spaceBetweenCards);   //используется для создания отступа между элементами в RecyclerView
+            recyclerView_cart=(RecyclerView)findViewById(R.id.recyclerView_cart);
 
-        initializeData();                       //заполнение данных в список
-        initializeAdapter();                    //отображение данных из списка в RecyclerView
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            recyclerView_cart.addItemDecoration(itemDecoration);
+            recyclerView_cart.setLayoutManager(linearLayoutManager);
+
+            recyclerView_searchResult=(RecyclerView)findViewById(R.id.recyclerView_searchResult);
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, 1);
+            recyclerView_searchResult.addItemDecoration(itemDecoration);
+            recyclerView_searchResult.setLayoutManager(staggeredGridLayoutManager);
+
+            initializeData();                       //заполнение данных в список
+            initializeAdapter();                    //отображение данных из списка в RecyclerView
+
+
+            getData("2110588221");
+            Log.d("my_app", "isActive");
+        } else{
+            mInstagram.authorize();
+            Log.d("my_app", "noActive");
+        }
+    }
+
+    public void getData(String userID){
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(Constant.API_URL).build();
+
+        InstagramAPI instApi = restAdapter.create(InstagramAPI.class);
+
+        instApi.getPhotosId(userID, mInstagramSession.getAccessToken(), new Callback<UserPicture>() {
+            @Override
+            public void success(UserPicture userPicture, Response response) {
+                Toast.makeText(getApplicationContext(), userPicture.lowResolution, Toast.LENGTH_SHORT).show();
+                Log.d("my_app", userPicture.lowResolution);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("my_app", error.toString());
+
+            }
+        });
     }
 
     private void initializeData(){
@@ -67,5 +117,4 @@ public class MainActivity extends AppCompatActivity {
         RecyclerViewSearchAdapter adapterSearch = new RecyclerViewSearchAdapter(cardItems);
         recyclerView_searchResult.setAdapter(adapterSearch);
     }
-
 }

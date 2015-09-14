@@ -50,7 +50,7 @@
             android:id="@+id/button_user"
             android:background="#004D40"
             android:layout_margin="5dp"
-
+            android:onClick="btn_Click"
             android:textColor="#ffffff" />
 
         <Button
